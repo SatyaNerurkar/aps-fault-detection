@@ -6,10 +6,10 @@ import pandas as pd
 client = pymongo.MongoClient("mongodb://localhost:27017/neurolabDB")
 
 # Database Name
-DATABASE_NAME = "aps_data"
+DATABASE_NAME = "aps"
 
 # Collection  Name
-COLLECTION_NAME = "Sensor"
+COLLECTION_NAME = "sensor"
 
 # CSV file path
 DATA_FILE_PATH = "/config/workspace/aps_failure_training_set1.csv"
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # creating dataframe
     df = pd.read_csv(DATA_FILE_PATH)
 
-    #Display 1st record from csv file
+    # Display 1st record from csv file
     print(f"Rows and columns: {df.shape}")
 
     # convert dataframe to json format
@@ -30,5 +30,5 @@ if __name__ == "__main__":
     # Display 1st record from json file
     print(json_record[0])
 
-    # insert data to mongodb
+    # Insert data to mongodb
     client[DATABASE_NAME][COLLECTION_NAME].insert_many(json_record)
