@@ -16,12 +16,17 @@ def get_collection_as_dataframe(database_name:str,collection_name:str)->pd.DataF
     """
     try:
         logging.info(f"Reading data from database: {database_name} and collection: {collection_name}")
+        # Extracting all the records from mongoDB collection converting it into a list and creating a dataframe out of it.
         df = pd.DataFrame(list(mongo_client[database_name][collection_name].find()))
         logging.info(f"Found columns: {df.columns}")
+
+        # Dropping "_id" column from dataframe if exists.
         if "_id" in df.columns:
             logging.info(f"Dropping column: _id ")
             df = df.drop("_id",axis=1)
         logging.info(f"Row and columns in df: {df.shape}")
+
+        # Returning dataframe
         return df
     except Exception as e:
         raise SensorException(e, sys)

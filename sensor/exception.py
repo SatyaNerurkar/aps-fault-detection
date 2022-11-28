@@ -1,6 +1,15 @@
 import sys,os
 
 def error_message_detail(error, error_detail: sys):
+    """
+    Description: This function constructs a detailed error message
+    ================================================================================
+    Params:
+    error
+    error_detail: details of the error
+    ================================================================================
+    return String with error message displaying filename, line number, error message
+    """
     _, _, exc_tb = error_detail.exc_info()
     file_name = exc_tb.tb_frame.f_code.co_filename
     error_message = "Error occurred python script name [{0}] line number [{1}] error message [{2}]".format(
