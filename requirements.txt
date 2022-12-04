@@ -16,4 +16,7 @@ wincertstore==0.2
 xgboost==1.6.2
 pandas
 PyYAML
+numpy
+scikit-learn
+
 -e .
