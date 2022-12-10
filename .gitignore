@@ -5,11 +5,14 @@ __pycache__/
 artifact
 
 # C extensions
+prediction
+saved_models
 *.so
 demotest.py
 logs
 artifacts
 raw_data
+
 # Distribution / packaging
 .Python
 build/
