@@ -14,9 +14,7 @@ from sklearn.preprocessing import RobustScaler
 from sensor.config import TARGET_COLUMN
 
 
-
 class DataTransformation:
-
 
     def __init__(self,data_transformation_config:config_entity.DataTransformationConfig,
                     data_ingestion_artifact:artifact_entity.DataIngestionArtifact):
@@ -30,46 +28,69 @@ class DataTransformation:
 
     @classmethod
     def get_data_transformer_object(cls)->Pipeline:
+        """
+        Description: This function will create a data transformer pipeline
+        ======================================================
+        returns Pipline
+        """
         try:
+            # Creting simple imputer object with strategy as 'constant'.
+            logging.info(f"Creting simple imputer object with strategy as 'constant'")
             simple_imputer = SimpleImputer(strategy='constant', fill_value=0)
+
+            # Creating robust scaler object
+            logging.info(f"Creating robust scaler object")
             robust_scaler =  RobustScaler()
+
+            # Creating pieline 
             pipeline = Pipeline(steps=[
                     ('Imputer',simple_imputer),
                     ('RobustScaler',robust_scaler)
                 ])
+            logging.info(f"Creating pieline {pipeline}")
+
             return pipeline
         except Exception as e:
             raise SensorException(e, sys)
 
 
     def initiate_data_transformation(self,) -> artifact_entity.DataTransformationArtifact:
+        """
+        Description: This function will perform all the data transformation on the train and test dataset.
+        """
         try:
-            #reading training and testing file
+            # reading training and testing file
+            logging.info(f"reading training and testing file for data transformation.")
             train_df = pd.read_csv(self.data_ingestion_artifact.train_file_path)
             test_df = pd.read_csv(self.data_ingestion_artifact.test_file_path)
 
-            #selecting input feature for train and test dataframe
+            # selecting input feature for train and test dataframe
+            logging.info(f"selecting input feature for train and test dataframe transformation.")
             input_feature_train_df=train_df.drop(TARGET_COLUMN,axis=1)
             input_feature_test_df=test_df.drop(TARGET_COLUMN,axis=1)
 
-            #selecting target feature for train and test dataframe
+            # selecting target feature for train and test dataframe
+            logging.info(f"selecting target feature for train and test dataframe transformation.")
             target_feature_train_df = train_df[TARGET_COLUMN]
             target_feature_test_df = test_df[TARGET_COLUMN]
 
+            # Creating label encoder object.
             label_encoder = LabelEncoder()
+            logging.info(f"Creating label encoder object {label_encoder}")
             label_encoder.fit(target_feature_train_df)
 
-            #transformation on target columns
+            # transformation on target columns
+            logging.info(f"Performing transformation on target columns")
             target_feature_train_arr = label_encoder.transform(target_feature_train_df)
             target_feature_test_arr = label_encoder.transform(target_feature_test_df)
 
             transformation_pipleine = DataTransformation.get_data_transformer_object()
             transformation_pipleine.fit(input_feature_train_df)
 
-            #transforming input features
+            # transforming input features
+            logging.info(f"Performing transformation on input features")
             input_feature_train_arr = transformation_pipleine.transform(input_feature_train_df)
             input_feature_test_arr = transformation_pipleine.transform(input_feature_test_df)
-
 
             smt = SMOTETomek(random_state=42)
             logging.info(f"Before resampling in training set Input: {input_feature_train_arr.shape} Target:{target_feature_train_arr.shape}")
@@ -80,22 +101,26 @@ class DataTransformation:
             input_feature_test_arr, target_feature_test_arr = smt.fit_resample(input_feature_test_arr, target_feature_test_arr)
             logging.info(f"After resampling in testing set Input: {input_feature_test_arr.shape} Target:{target_feature_test_arr.shape}")
 
-            #target encoder
-            train_arr = np.c_[input_feature_train_arr, target_feature_train_arr ]
+            # target encoder
+            logging.info(f"Concatenating input and output features to generate train and test array")
+            train_arr = np.c_[input_feature_train_arr, target_feature_train_arr]
             test_arr = np.c_[input_feature_test_arr, target_feature_test_arr]
 
 
-            #save numpy array
+            # save numpy array
+            logging.info(f"Storing  train array in {self.data_transformation_config.transformed_train_path}")
             utils.save_numpy_array_data(file_path=self.data_transformation_config.transformed_train_path,
                                         array=train_arr)
 
+            logging.info(f"Storing  test array in {self.data_transformation_config.transformed_test_path}")
             utils.save_numpy_array_data(file_path=self.data_transformation_config.transformed_test_path,
                                         array=test_arr)
 
-
+            logging.info(f"Storing  pipeline object in {self.data_transformation_config.transform_object_path}")
             utils.save_object(file_path=self.data_transformation_config.transform_object_path,
              obj=transformation_pipleine)
 
+            logging.info(f"Storing  encoder object in {self.data_transformation_config.target_encoder_path}")
             utils.save_object(file_path=self.data_transformation_config.target_encoder_path,
             obj=label_encoder)
 

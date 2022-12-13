@@ -26,8 +26,13 @@ class DataIngestionConfig:
         try:
             self.database_name="aps"
             self.collection_name="sensor"
+            # creating "data_ingestion" directory within "artifact".
             self.data_ingestion_dir = os.path.join(training_pipeline_config.artifact_dir , "data_ingestion")
+            
+            # creating "feature_store" directory within "data_ingestion" to store CSV file extracted from MongoDB.
             self.feature_store_file_path = os.path.join(self.data_ingestion_dir,"feature_store",FILE_NAME)
+
+            # creating "dataset" directory within "data_ingestion" to store train and test file created after traintestsplit.
             self.train_file_path = os.path.join(self.data_ingestion_dir,"dataset",TRAIN_FILE_NAME)
             self.test_file_path = os.path.join(self.data_ingestion_dir,"dataset",TEST_FILE_NAME)
             self.test_size = 0.2
@@ -43,25 +48,40 @@ class DataIngestionConfig:
 class DataValidationConfig:
 
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        # creating "data_validation" directory within "artifact".
         self.data_validation_dir = os.path.join(training_pipeline_config.artifact_dir , "data_validation")
+
+        # creating "report.yaml" file inside "data_validation" directory.
         self.report_file_path=os.path.join(self.data_validation_dir, "report.yaml")
-        self.missing_threshold:float = 0.2
+
+        self.missing_threshold:float = 0.7
         self.base_file_path = os.path.join("aps_failure_training_set1.csv")
 
 class DataTransformationConfig:
 
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        # creating "data_transformation" directory within "artifact".
         self.data_transformation_dir = os.path.join(training_pipeline_config.artifact_dir , "data_transformation")
+
+        # creating "transformer.pkl" file inside "data_transformation" directory.
         self.transform_object_path = os.path.join(self.data_transformation_dir,"transformer",TRANSFORMER_OBJECT_FILE_NAME)
-        self.transformed_train_path =  os.path.join(self.data_transformation_dir,"transformed",TRAIN_FILE_NAME.replace("csv","npz"))
-        self.transformed_test_path =os.path.join(self.data_transformation_dir,"transformed",TEST_FILE_NAME.replace("csv","npz"))
+
+        # creating "train.csv" and "test.csv" files inside "transformed" directory. 
+        self.transformed_train_path = os.path.join(self.data_transformation_dir,"transformed",TRAIN_FILE_NAME.replace("csv","npz"))
+        self.transformed_test_path = os.path.join(self.data_transformation_dir,"transformed",TEST_FILE_NAME.replace("csv","npz"))
+
+        # creating "target_encoder.pkl" file inside "target_encoder" directory.
         self.target_encoder_path = os.path.join(self.data_transformation_dir,"target_encoder",TARGET_ENCODER_OBJECT_FILE_NAME)
 
 class ModelTrainerConfig:
 
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        # creating "model_trainer" directory within "artifact".
         self.model_trainer_dir = os.path.join(training_pipeline_config.artifact_dir , "model_trainer")
+
+        # creating "model.pkl" file inside "model_trainer" directory.
         self.model_path = os.path.join(self.model_trainer_dir,"model",MODEL_FILE_NAME)
+        
         self.expected_score = 0.7
         self.overfitting_threshold = 0.1
 
@@ -72,8 +92,13 @@ class ModelEvaluationConfig:
 class ModelPusherConfig:
 
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+
+        # creating "model_pusher" directory within "artifact".
         self.model_pusher_dir = os.path.join(training_pipeline_config.artifact_dir , "model_pusher")
+
+        # creating "saved_models" directory.
         self.saved_model_dir = os.path.join("saved_models")
+
         self.pusher_model_dir = os.path.join(self.model_pusher_dir,"saved_models")
         self.pusher_model_path = os.path.join(self.pusher_model_dir,MODEL_FILE_NAME)
         self.pusher_transformer_path = os.path.join(self.pusher_model_dir,TRANSFORMER_OBJECT_FILE_NAME)

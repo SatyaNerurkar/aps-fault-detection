@@ -19,18 +19,37 @@ class ModelResolver:
 
 
     def get_latest_dir_path(self)->Optional[str]:
+        """
+        Description: This function will fetch latest directory name 
+        =====================================================================================
+        returns latest directory
+        """
         try:
+            # List out all the saved models in directory
             dir_names = os.listdir(self.model_registry)
+
+            # Check if directory names are greater than 0
             if len(dir_names)==0:
                 return None
+
+            # Assign integer values to each directory
             dir_names = list(map(int,dir_names))
+
+            # get latest directory using max function.
             latest_dir_name = max(dir_names)
+
             return os.path.join(self.model_registry,f"{latest_dir_name}")
         except Exception as e:
             raise e
 
     def get_latest_model_path(self):
+        """
+        Description: This function will fetch latest trained model directory name 
+        =====================================================================================
+        returns latest trained model directory
+        """
         try:
+            # get latest directory
             latest_dir = self.get_latest_dir_path()
             if latest_dir is None:
                 raise Exception(f"Model is not available")
@@ -39,7 +58,13 @@ class ModelResolver:
             raise e
 
     def get_latest_transformer_path(self):
+        """
+        Description: This function will fetch latest data transformer directory name 
+        =====================================================================================
+        returns latest data transformer directory
+        """
         try:
+            # get latest directory
             latest_dir = self.get_latest_dir_path()
             if latest_dir is None:
                 raise Exception(f"Transformer is not available")
@@ -48,6 +73,11 @@ class ModelResolver:
             raise e
 
     def get_latest_target_encoder_path(self):
+        """
+        Description: This function will fetch latest target encoder directory name 
+        =====================================================================================
+        returns latest target encoder directory
+        """
         try:
             latest_dir = self.get_latest_dir_path()
             if latest_dir is None:

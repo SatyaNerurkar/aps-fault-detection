@@ -22,18 +22,22 @@ class ModelTrainer:
         except Exception as e:
             raise SensorException(e, sys)
 
-    def fine_tune(self):
-        try:
-            #Wite code for Grid Search CV
-            pass
-
-
-        except Exception as e:
-            raise SensorException(e, sys)
-
     def train_model(self,x,y):
+        """
+        Description: This function will train the machine learning model on training dataset.
+        ====================================================================================
+        x: Accepts x train array
+        y: Accepts y train array
+        =====================================================================================
+        returns machine learning model
+        """
         try:
+            # creating XG Boost classifier object.
+            logging.info(f"creating XG Boost classifier object.")
             xgb_clf =  XGBClassifier()
+
+            # fit train data on XG Boost classifier object
+            logging.info(f"fit train data on XG Boost classifier object.")
             xgb_clf.fit(x,y)
             return xgb_clf
         except Exception as e:
@@ -41,27 +45,38 @@ class ModelTrainer:
 
 
     def initiate_model_trainer(self,)->artifact_entity.ModelTrainerArtifact:
+        """
+        Description: This function will trigger training machine learning model.
+        ====================================================================================
+        returns nachine learning model artifact
+        """
         try:
+            # Loading train and test array.
             logging.info(f"Loading train and test array.")
             train_arr = utils.load_numpy_array_data(file_path=self.data_transformation_artifact.transformed_train_path)
             test_arr = utils.load_numpy_array_data(file_path=self.data_transformation_artifact.transformed_test_path)
 
+            # Splitting input and target feature from both train and test arr.
             logging.info(f"Splitting input and target feature from both train and test arr.")
             x_train,y_train = train_arr[:,:-1],train_arr[:,-1]
             x_test,y_test = test_arr[:,:-1],test_arr[:,-1]
 
+            # Train the model
             logging.info(f"Train the model")
             model = self.train_model(x=x_train,y=y_train)
 
+            # Calculating f1 train score
             logging.info(f"Calculating f1 train score")
             yhat_train = model.predict(x_train)
             f1_train_score  =f1_score(y_true=y_train, y_pred=yhat_train)
 
+            # Calculating f1 test score
             logging.info(f"Calculating f1 test score")
             yhat_test = model.predict(x_test)
             f1_test_score  =f1_score(y_true=y_test, y_pred=yhat_test)
 
             logging.info(f"train score:{f1_train_score} and tests score {f1_test_score}")
+
             #check for overfitting or underfiiting or expected score
             logging.info(f"Checking if our model is underfitting or not")
             if f1_test_score<self.model_trainer_config.expected_score:
@@ -75,13 +90,14 @@ class ModelTrainer:
                 raise Exception(f"Train and test score diff: {diff} is more than overfitting threshold {self.model_trainer_config.overfitting_threshold}")
 
             #save the trained model
-            logging.info(f"Saving mode object")
+            logging.info(f"Saving model object at {self.model_trainer_config.model_path}")
             utils.save_object(file_path=self.model_trainer_config.model_path, obj=model)
 
             #prepare artifact
             logging.info(f"Prepare the artifact")
             model_trainer_artifact  = artifact_entity.ModelTrainerArtifact(model_path=self.model_trainer_config.model_path, 
             f1_train_score=f1_train_score, f1_test_score=f1_test_score)
+
             logging.info(f"Model trainer artifact: {model_trainer_artifact}")
             return model_trainer_artifact
         except Exception as e:

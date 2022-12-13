@@ -31,8 +31,8 @@ class ModelEvaluation:
 
     def initiate_model_evaluation(self)->artifact_entity.ModelEvaluationArtifact:
         try:
-            #if saved model folder has model the we will compare 
-            #which model is best trained or the model from saved model folder
+            # If saved model folder has model the we will compare 
+            # which model is best trained or the model from saved model folder
 
             logging.info("if saved model folder has model the we will compare "
             "which model is best trained or the model from saved model folder")
@@ -45,21 +45,20 @@ class ModelEvaluation:
 
 
 
-            #Finding location of transformer model and target encoder
+            # Finding location of transformer model and target encoder
             logging.info("Finding location of transformer model and target encoder")
             transformer_path = self.model_resolver.get_latest_transformer_path()
             model_path = self.model_resolver.get_latest_model_path()
             target_encoder_path = self.model_resolver.get_latest_target_encoder_path()
 
+            # Previous trained  objects
             logging.info("Previous trained objects of transformer, model and target encoder")
-            #Previous trained  objects
             transformer = load_object(file_path=transformer_path)
             model = load_object(file_path=model_path)
             target_encoder = load_object(file_path=target_encoder_path)
 
-
+            # Currently trained model objects
             logging.info("Currently trained model objects")
-            #Currently trained model objects
             current_transformer = load_object(file_path=self.data_transformation_artifact.transform_object_path)
             current_model  = load_object(file_path=self.model_trainer_artifact.model_path)
             current_target_encoder = load_object(file_path=self.data_transformation_artifact.target_encoder_path)

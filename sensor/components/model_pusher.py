@@ -49,5 +49,6 @@ class ModelPusher:
              saved_model_dir=self.model_pusher_config.saved_model_dir)
             logging.info(f"Model pusher artifact: {model_pusher_artifact}")
             return model_pusher_artifact
+            
         except Exception as e:
             raise SensorException(e, sys)
